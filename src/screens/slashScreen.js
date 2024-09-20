@@ -37,12 +37,12 @@ const SplashScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: translateXAnim }] }}>
         <Image
           source={require("../assets/logo.png")}
           style={{ height: 200, width: 300, resizeMode: 'contain' }}
         />
-      </Animated.View>
+      {/* <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: translateXAnim }] }}>
+      </Animated.View> */}
     </View>
   );
 }

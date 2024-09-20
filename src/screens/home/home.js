@@ -1,36 +1,31 @@
-import React from "react";
-import { View, Text, TextInput, ScrollView, FlatList, TouchableOpacity, Image } from "react-native";
-import styles from './styles';
-
-import { COLORS } from '../../constants/theme';
-import Restaurent from "../../components/restaurent";
-import DATA from "../../data/data.json";
-import Header from "../../components/header";
-import Button from "../../components/button/button";
-import SettingCard from "../../components/card/settingCard";
-import { useNavigation } from "@react-navigation/native";
-import { Icon } from "react-native-paper";
-import * as Progress from 'react-native-progress';
-
-const HomeScreen = ({ }) => {
-    const navigation = useNavigation()
-    // filter by price type
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React from 'react'
+import Header from '../../components/header'
+import { AnimatedCircularProgress } from 'react-native-circular-progress'
+import { Circle } from 'react-native-svg'
+import { COLORS } from '../../constants/theme'
+import { Image } from 'react-native'
+import { Icon } from 'react-native-paper'
+import { useNavigation } from '@react-navigation/native'
+const Home = () => {
+    let navigation = useNavigation()
     const data = [
         {
             id: 1,
             title: "MY TEAM",
-            img: require("../../assets/team.png")
+            icn: 'microsoft-teams'
         },
         {
             id: 2,
             title: "BUY PRODUCTS",
-            img: require("../../assets/product.png")
+            icn: 'cart-variant'
         },
         {
             id: 3,
             title: "ADD NEW MEMBER",
-            img: require("../../assets/member.png")
+            icn: 'account-supervisor'
         },
+        
 
 
     ]
@@ -44,123 +39,91 @@ const HomeScreen = ({ }) => {
             navigation.navigate('AddMember')
         }
     }
-
     return (
-
         <>
-            {/* <Header /> */}
-            <View style={{ alignSelf: 'flex-end', right: 20, margin: 5 }}>
 
 
+            <View style={{ backgroundColor: COLORS.white, flex: 1, }}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                    <View style={{ height: 180, width: 180, borderRadius: 100, backgroundColor:'rgba(0,0,0,.5)'}}>
 
-            </View>
-            <View style={{ backgroundColor: COLORS.primary, paddingHorizontal: 10, paddingVertical: 20,borderBottomLeftRadius:30,borderBottomRightRadius:30 }}>
-                <TouchableOpacity style={{ marginBottom: 10, flexDirection: 'row', alignSelf: 'flex-end', alignItems: 'center', backgroundColor: COLORS.white, elevation: 5, paddingHorizontal: 5, paddingVertical: 5, borderRadius: 30 }}>
-                    <Icon source="gift" size={25} color={COLORS.yellow} />
-                    <Text style={{ marginHorizontal: 10, fontSize: 14, color: COLORS.secondry, fontWeight: '400' }}>Reward</Text>
-                </TouchableOpacity>
-                <View style={{ alignItems: 'center', }}>
-
-                    <FlatList
-                        data={data}
-                        horizontal
-
-                        renderItem={({ item, index }) => {
-                            return (
+                        <AnimatedCircularProgress
+                            size={170}
+                            width={15}
+                            fill={50}
+                            tintColor={COLORS.primary}
+                            backgroundColor='rgb(204,204,245)'
+                            padding={10}
 
 
-                                <TouchableOpacity
-                                    onPress={() => handleNavigation(item)}
-                                    style={{
-                                        marginHorizontal: 5,
-                                        height: 150, width: 105, backgroundColor: COLORS.white, borderRadius: 20,
-                                        paddingHorizontal: 20,
-                                        paddingVertical: 20,
-                                        elevation: 5, alignItems: 'center'
-                                    }}>
-                                    <View style={{ height: 90, width: 90, borderRadius: 100, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' }}>
+                            renderCap={({ center }) => <Circle cx={center.x} cy={center.y} r="10" fill="blue" />}
+                        >{(fill) => (<Text>50%</Text>)}</AnimatedCircularProgress>
 
-                                        <Image source={item.img} style={{ height: 50, width: 50, resizeMode: 'contain' }} />
-                                    </View>
-                                    <Text style={{ fontSize: 10, marginTop: 5, textAlign: 'center', fontWeight: '600', color: COLORS.secondry }}>{item.title}</Text>
-                                </TouchableOpacity>
-
-                            )
-                        }} />
+                    </View>
                 </View>
-            </View>
-            <View style={{ flex: 1, backgroundColor: 'rgb(242,242,242)' }}>
-                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                <View style={{ flex: 1, backgroundColor: 'rgb(242,242,212)', marginTop: 10, borderTopRightRadius: 40, borderTopLeftRadius: 40, }}>
+                    <View style={{ flex: 1, margin: 20 }}>
+                        <Text style={{ color: COLORS.title, fontSize: 18, textAlign: 'center' }}>All Member Status</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 10, margin: 20 }}>
 
-                    <View style={{ margin: 20, }}>
-
-
-                        <View style={{ alignSelf: 'center', marginTop: 10, marginBottom: 10 }}>
-                            {/* <View style={{ marginTop: 20 }}>
-
-                                <Text style={{ color: COLORS.secondry, fontSize: 14, fontWeight: '600' }}>
-                                    Claim your gift
-                                </Text>
-                                <View style={{ alignSelf: 'center' }}>
-                                    <View>
-                                    </View>
-                                    <View style={{ height: 100, width: 100, borderRadius: 100, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 18, fontWeight: '400', color: COLORS.white }}>CLAIM</Text>
-                                    </View>
-                                </View>
-                            </View> */}
-                            <Text style={{ color: COLORS.secondry, fontSize: 14, fontWeight: '600', marginHorizontal: -90 }}>
-                                Claim your gift
-                            </Text>
-                            <TouchableOpacity style={{ borderColor: COLORS.primary, borderWidth: 5, borderRadius: 100, width: 150, }}>
-
-                                <Progress.Pie progress={.6} size={140} color={COLORS.primary} te />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ marginTop: 10, marginBottom: 10 }}>
-                            {/* <Text style={{ color: COLORS.secondry, fontSize: 16, fontWeight: '500' }}>Members Counts</Text> */}
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-
-                                <View style={{ backgroundColor: 'green', width: '30%', paddingHorizontal: 15, paddingVertical: 15, elevation: 5, borderRadius: 20, alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 18, fontWeight: '600', color: COLORS.white }}>Active</Text>
-                                    <View style={{ backgroundColor: COLORS.white, paddingHorizontal: 15, paddingVertical: 15, elevation: 5, borderRadius: 100, alignItems: 'center' }}>
-                                        <Text>20</Text>
-                                    </View>
-                                </View>
-                                <View style={{ backgroundColor: 'red', width: '30%', paddingHorizontal: 15, paddingVertical: 15, elevation: 5, borderRadius: 20, alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 18, fontWeight: '600', color: COLORS.white }}>Pending</Text>
-                                    <View style={{ backgroundColor: COLORS.white, paddingHorizontal: 15, paddingVertical: 15, elevation: 5, borderRadius: 100, alignItems: 'center' }}>
-                                        <Text>20</Text>
-                                    </View>
-                                </View>
-                                <View style={{ backgroundColor: COLORS.secondry, width: '30%', paddingHorizontal: 15, paddingVertical: 15, elevation: 5, borderRadius: 20, alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 18, fontWeight: '600', color: COLORS.white }}>Total</Text>
-                                    <View style={{ backgroundColor: COLORS.white, paddingHorizontal: 15, paddingVertical: 15, elevation: 5, borderRadius: 100, alignItems: 'center' }}>
-                                        <Text>20</Text>
-                                    </View>
-                                </View>
+                            <View style={{ backgroundColor: COLORS.primary, width: '30%', paddingVertical: 10, elevation: 20, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 100, }}>
+                                <Text style={{ color: COLORS.white }}>Active</Text>
+                                <Text>00</Text>
+                            </View>
+                            <View style={{ backgroundColor: COLORS.yellow, width: '30%', paddingVertical: 10, elevation: 20, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 100, }}>
+                                <Text style={{ color: COLORS.white }}>Pending</Text>
+                                <Text>00</Text>
+                            </View>
+                            <View style={{ backgroundColor: COLORS.secondry, width: '30%', paddingVertical: 10, elevation: 20, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 100, }}>
+                              
+                                <Text style={{ color: COLORS.white }}>Total</Text>
+                            <Text>00</Text>
                             </View>
                         </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                            <View style={{ width: '45%', height: 150, backgroundColor: COLORS.primary, paddingHorizontal: 30, paddingVertical: 15, elevation: 5, borderRadius: 20, alignItems: 'center' }}>
-                                 <View style={{ backgroundColor: COLORS.white, height:80,width:80, elevation: 10, borderRadius: 100, alignItems: 'center',justifyContent:'center',right:10 }}>
-                                    <Text style={{ color: COLORS.title, fontWeight: '600', fontSize: 20 }}>20</Text>
-                                </View>
-                                <Text style={{ textAlign: 'center', fontSize: 16, color: COLORS.title, fontWeight: '600', marginTop: 10, marginBottom: 10 }}>Child Count</Text>
-                            </View>
-                            <View style={{ width: '45%', height: 150, backgroundColor: COLORS.primary, paddingHorizontal: 30, paddingVertical: 15, elevation: 5, borderRadius: 20, alignItems: 'center' }}>
-                                <View style={{ backgroundColor: COLORS.white, height:80,width:80, elevation: 10, borderRadius: 100, alignItems: 'center',justifyContent:'center',right:10 }}>
-                                    <Text style={{ color: COLORS.secondry, fontWeight: '600', fontSize: 20 }}>20</Text>
-                                </View>
-                                <Text style={{ textAlign: 'center', fontSize: 16, color: COLORS.title, fontWeight: '600', marginTop: 10, marginBottom: 10 }}>Reward Points</Text>
-                            </View>
+                        <View style={{ alignItems: 'center', flex: 1, }}>
+                            <FlatList
+                                data={data}
+                                // numColumns={2}
+                                horizontal
+                                showsVerticalScrollIndicator={false}
+                                scrollEnabled ={false}
+                                renderItem={({ item, index }) => {
+                                    return (
+
+
+                                        <TouchableOpacity
+                                            onPress={() => handleNavigation(item)}
+                                            style={{
+                                                marginHorizontal: 5,
+                                                height: 120, width: 100, borderRadius: 20,
+                                                paddingHorizontal: 20,
+                                                paddingVertical: 20,
+                                                elevation: 5, alignItems: 'center',
+                                                backgroundColor: 'white',
+                                                marginVertical: 10,
+                                                zIndex: 100
+                                            }}>
+                                            <View style={{ height: 50, width: 50, borderRadius: 100, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' }}>
+                                                <Icon source={item.icn} size={30} color='white' />
+
+                                            </View>
+                                            <Text style={{ fontSize: 10, marginTop: 5, textAlign: 'center', fontWeight: '600', color: COLORS.secondry }}>{item.title}</Text>
+                                        </TouchableOpacity>
+
+                                    )
+                                }} />
+                            
                         </View>
 
                     </View>
-                </ScrollView>
+                    <View>
+                    </View>
+                </View>
             </View>
         </>
     )
 }
 
-export default HomeScreen;
+export default Home
+
+const styles = StyleSheet.create({})

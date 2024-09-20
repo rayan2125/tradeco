@@ -1,24 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { View, Text } from 'react-native'
 import React from 'react'
+import Home from './screens/home/home'
 import { NavigationContainer } from '@react-navigation/native'
 import Router from './router/router'
-import { PaperProvider } from 'react-native-paper'
-import { NativeBaseProvider } from 'native-base'
 
 const App = () => {
   return (
-    <NativeBaseProvider>
-
-      <PaperProvider>
-        <NavigationContainer>
-          <Router />
-        </NavigationContainer>
-      </PaperProvider>
-    </NativeBaseProvider>
-
+    <NavigationContainer>
+      <Router/>
+    </NavigationContainer>
   )
 }
 
 export default App
-
-const styles = StyleSheet.create({})

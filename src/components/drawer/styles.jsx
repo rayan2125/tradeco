@@ -1,10 +1,16 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import { COLORS, SIZES } from '../../constants/theme';
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        margin: 5,
+
+
+        height: "100%",
+        //    bottom:100,
+        // width:'90%',
+        backgroundColor: COLORS.secondry,
+        zIndex: 100,
+        justifyContent: 'space-between'
     },
     item: {
         marginVertical: 10,
@@ -48,7 +54,7 @@ const styles = StyleSheet.create({
     },
     rowFilter: {
         flexDirection: 'row',
-        justifyContent:'space-between',
+        justifyContent: 'space-between',
     },
     button: {
         marginTop: 30,

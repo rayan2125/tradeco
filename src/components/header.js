@@ -1,21 +1,30 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { COLORS, SIZES } from '../constants/theme'
+import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { COLORS, SIZES } from '../constants/theme';
+import { Icon } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 const Header = () => {
+    let navigation = useNavigation()
+    const [open, setOpen] = useState(false);
+
+
     return (
-        <View style={{ height: 100, backgroundColor: COLORS.primary, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 30 }}>
-            <View>
+        <>
+            <View style={{ height: 70, backgroundColor: COLORS.white, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10 }}>
+                <TouchableOpacity
+                    onPress={() => navigation.pop()}
+                    style={{ backgroundColor:'rgb(101,101,101)', height: 40, width: 40, borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon source="less-than" color={COLORS.white} />
+                </TouchableOpacity>
 
-                <Text style={{ color: COLORS.lightGrey, fontSize: SIZES.h2, fontWeight: '500' }}>Welcome</Text>
-                <Text style={{ color: COLORS.lightGrey, fontSize: SIZES.h4, fontWeight: '400' }}>Jon Doe</Text>
+                {/* Centered View */}
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', right: 15 }}>
+                    <Text style={{ fontSize: SIZES.h2, color: COLORS.black }}>Product</Text>
+                </View>
             </View>
-            <View style={{ backgroundColor: COLORS.white, width: 20, height: 20, borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
+        </>
+    );
+};
 
-                <Text style={{ color: COLORS.title, fontWeight: '900' }}>i</Text>
-            </View>
-        </View>
-    )
-}
-
-export default Header
+export default Header;
