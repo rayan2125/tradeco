@@ -1,51 +1,69 @@
 import { Animated, StyleSheet, View, Image } from 'react-native'
 import React, { useEffect, useRef } from 'react'
-import { useNavigation } from '@react-navigation/native'; // Import navigation hook
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; // Import navigation hooks
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSelector } from 'react-redux';
+import { callAxiosGet } from '../services/api';
+import { API_CONSTANTS } from '../constants/ApiCollection';
 
 const SplashScreen = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity value
-  const translateXAnim = useRef(new Animated.Value(-300)).current; // Initial position off-screen to the left
-  const navigation = useNavigation(); // Access navigation
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateXAnim = useRef(new Animated.Value(-300)).current;
+  const navigation = useNavigation();
 
-  useEffect(() => {
-    // Start the animation when the component mounts
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1, // Final opacity value
-        duration: 1000, // Duration in milliseconds
-        useNativeDriver: true
-      }),
-      Animated.timing(translateXAnim, {
-        toValue: 0, // Moves the image to the center (x = 0)
-        duration: 1000, // Duration in milliseconds
-        useNativeDriver: true
-      })
-    ]).start(async () => {
-      // Check token in AsyncStorage after the animation completes
-      const token = await AsyncStorage.getItem('token');
+  useFocusEffect(
+    React.useCallback(() => {
+      // Start the animation when the screen is focused
+      const animateSplashScreen = () => {
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1, // Final opacity value
+            duration: 1000, // Duration in milliseconds
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateXAnim, {
+            toValue: 0, // Moves the image to the center (x = 0)
+            duration: 1000, // Duration in milliseconds
+            useNativeDriver: true,
+          }),
+        ]).start(async () => {
+          // Check for token and navigate accordingly
+          const token = await AsyncStorage.getItem('token');
+          if (token) {
+            await callAxiosGet(API_CONSTANTS.profile).then((res) => {
+              let userDetails = res.data;
+              if (userDetails.status === 'pending') {
+                navigation.navigate('NewProfile');
+              } else {
+                navigation.replace('Home');
+              }
+            });
+          } else {
+            // If no token, navigate to Login screen
+            navigation.replace('Login');
+          }
+        });
+      };
 
-      if (token) {
-        // If token exists, navigate to Home screen
-        navigation.replace('Home');
-      } else {
-        // If no token, navigate to Login screen
-        navigation.replace('Login');
-      }
-    });
-  }, [fadeAnim, translateXAnim, navigation]);
+      animateSplashScreen();
+
+      // Cleanup animation on unfocus
+      return () => {
+        fadeAnim.setValue(0); // Reset animation values
+        translateXAnim.setValue(-300);
+      };
+    }, [fadeAnim, translateXAnim, navigation])
+  );
 
   return (
     <View style={styles.container}>
-        <Image
-          source={require("../assets/logo.png")}
-          style={{ height: 200, width: 300, resizeMode: 'contain' }}
-        />
-      {/* <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: translateXAnim }] }}>
-      </Animated.View> */}
+      <Image
+        source={require('../assets/logo.png')}
+        style={{ height: 200, width: 300, resizeMode: 'contain' }}
+      />
     </View>
   );
-}
+};
 
 export default SplashScreen;
 

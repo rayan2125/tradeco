@@ -3,7 +3,7 @@ import React from 'react';
 import { TextInput, useTheme } from 'react-native-paper';
 import { COLORS } from '../../constants/theme';
 
-const IconInput = ({ title, onChangeText, error, keyboardType,maxLength }) => {
+const IconInput = ({ title, value,onChangeText,editable,error, keyboardType,maxLength }) => {
   let defaultTheme = useTheme();
 
   return (
@@ -16,9 +16,11 @@ const IconInput = ({ title, onChangeText, error, keyboardType,maxLength }) => {
         style={[styles.input, { backgroundColor: 'white' }]}
         onChangeText={onChangeText}
         // left={left}
-        theme={{ roundness: 25 }}
+        theme={{ roundness: 15 }}
         keyboardType={keyboardType}
         maxLength={maxLength}
+        editable={editable}
+        value={value}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>

@@ -10,7 +10,11 @@ export const API_CONSTANTS = {
     createOrder: 'order',
     listOrder: 'orders',
     payment: 'payment/account',
-    product:'products'
+    product: 'products',
+    teams: 'children',
+    transactions: 'transactions/initiate',
+    trStatus: 'transactions',
+    
 
 
 }

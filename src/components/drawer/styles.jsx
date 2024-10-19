@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
         height: "100%",
         //    bottom:100,
         // width:'90%',
-        backgroundColor: COLORS.secondry,
+        backgroundColor: 'rgb(245,245,245)',
         zIndex: 100,
         justifyContent: 'space-between'
     },

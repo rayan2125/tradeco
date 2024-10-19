@@ -2,8 +2,9 @@ import axios from 'axios';
 
 
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { API_CONSTANTS } from '../constants/ApiCollection';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosRequestConfig = {
   headers: {
@@ -46,7 +47,7 @@ async function registerUser(userData) {
 
 
 async function callAxios(endPoint, reqData, auth = true) {
-
+console.log(reqData)
   try {
     const [baseUrl, token] = await Promise.all([getBaseUrl(), getToken()]);
 
@@ -54,6 +55,7 @@ async function callAxios(endPoint, reqData, auth = true) {
 
     const response = await axios.post(
       baseUrl + endPoint,
+
       { ...reqData },
       {
         headers: {
@@ -186,12 +188,13 @@ async function callAxiosWithFormDataRegister(endPoint, reqData) {
 
 
 async function callAxiosGet(endPoint, auth = true) {
+
   try {
     const [baseUrl, token] = await Promise.all([getBaseUrl(), getToken()]);
     const authtoken = auth ? 'Bearer ' + token : "";
-
     const response = await axios.get(
       baseUrl + endPoint,
+
       {
         headers: {
           'Content-Type': 'application/json',

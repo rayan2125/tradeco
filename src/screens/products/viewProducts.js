@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import { Icon } from 'react-native-paper'
 import { COLORS } from '../../constants/theme'
 import { useNavigation } from '@react-navigation/native'
-import Rating from '../../components/rating'
+import Header from '../../components/header'
+import Button from '../../components/button/button'
 
 const ViewProducts = ({ route }) => {
     let navigation = useNavigation()
@@ -12,63 +13,48 @@ const ViewProducts = ({ route }) => {
     let des = route.params.description
     let price = route.params.price
     let name = route.params.name
-    // console.log(img)
+
     const handleNavigation = () => {
         navigation.navigate("Cart")
     }
+
     return (
-        <View style={{ margin: 20, flex: 1 }} >
-            <TouchableOpacity
-                onPress={() => navigation.pop()}
-                style={{ backgroundColor: COLORS.primary, height: 40, width: 40, borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
-                <Icon source="less-than" color={COLORS.white} />
-            </TouchableOpacity>
-            <View style={{ flex: 1, justifyContent: 'space-around' }}>
-                <ScrollView showsVerticalScrollIndicator={false}>
-
-                    <View style={{ marginTop: 20 }}>
-                        <Image source={{ uri: img }} style={{ height: 200, resizeMode: 'contain', borderRadius: 20 }} />
-                    </View>
-                    <View style={{ marginTop: 10, gap: 15 }}>
-                        <View>
-
-                            <Text style={{ fontSize: 18, textAlign: 'center' }}> Product Name:{name}</Text>
+        <>
+            <Header title="Products " />
+            <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+                <View style={{ flex: 1, margin: 20 }}>
+                    <View style={{}}>
+                        <Text style={{ fontSize: 24, fontWeight: '600', color: COLORS.title }}>{name}</Text>
+                        <View style={{ alignItems: 'center', marginTop: 20 }}>
+                            {/* Centered Image */}
+                            <Image source={{ uri: img }} style={{ height: 400, width: 300, resizeMode: 'contain', borderRadius: 20 }} />
                         </View>
-                        <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-                            <Text>
-                                Rs
-                                <Text style={{ fontSize: 22, color: COLORS.primary, fontWeight: '500', marginHorizontal: 10 }}>  {price}/-</Text>
-                            </Text>
-                            <View style={{ flexDirection: 'row', gap: 10 }}>
-
-                                <TouchableOpacity
-                                    onPress={() => setselected(!selected)}
-                                >
-                                    <Icon source={selected === true ? "heart" : "cards-heart-outline"} size={25} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                // onPress={() => setselected(!selected)}
-                                >
-                                    <Icon source="share-variant-outline" size={25} />
-                                </TouchableOpacity>
+                    </View>
+                    <View style={{ justifyContent: 'space-between', flexDirection: 'row', marginTop: 10 }}>
+                        <Text style={{ color: COLORS.title }}>
+                            Rs
+                            <Text style={{ fontSize: 24, color: COLORS.title, fontWeight: '500', marginHorizontal: 10 }}> {price} {'\u20B9'}</Text>
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <TouchableOpacity onPress={() => setselected(!selected)}>
+                                <Icon source={selected === true ? "heart" : "cards-heart-outline"} size={25} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setselected(!selected)}>
+                                <Icon source="share-variant-outline" size={25} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <View style={{ marginTop: 10, gap: 15 }}>
+                                <Text>{des}</Text>
                             </View>
-                        </View>
-                        <View style={{ alignSelf: 'flex-end' }}>
-                            <Rating count={5} />
-                        </View>
-                        <Text>{des.slice(0, 500)}</Text>
+                        </ScrollView>
+                        <Button title="Add Cart" onPress={handleNavigation} />
                     </View>
-                    <View>
-
-                        <TouchableOpacity
-                            onPress={() => handleNavigation()}
-                            style={{ backgroundColor: COLORS.primary, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
-                            <Text style={{ fontSize: 14, color: COLORS.white, fontWeight: '600' }}>Add Cart</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
+                </View>
             </View>
-        </View>
+        </>
     )
 }
 

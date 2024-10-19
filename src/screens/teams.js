@@ -1,42 +1,114 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { COLORS } from '../constants/theme'
-import Button from '../components/button/button'
-import IconInput from '../components/text/iconInput'
-import { Icon } from 'react-native-paper'
-import { useNavigation } from '@react-navigation/native'
+import * as React from 'react';
+import { View, Text, useWindowDimensions } from 'react-native';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view'; // Import TabBar for customization
+import Header from '../components/header';
+import { callAxiosGet } from '../services/api';
+import { API_CONSTANTS } from '../constants/ApiCollection';
+import { COLORS } from '../constants/theme';
+import { Divider, Icon } from 'react-native-paper';
+import TeamsComponent from '../components/Teams/teams';
 
-const Teams = () => {
-    let navigation = useNavigation()
-    return (
-        <View style={{ flex: 1, margin: 20 }}>
-            <TouchableOpacity
-                onPress={() => navigation.pop()}
-                style={{ backgroundColor: COLORS.primary, height: 40, width: 40, borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
-                <Icon source="less-than" color={COLORS.white} />
-            </TouchableOpacity>
-            <View style={{flex:1,justifyContent:'center'}}>
-                <View>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: COLORS.title, textAlign: 'center' }}>Add New Member</Text>
+const FirstRoute = ({ data }) => (
+    <>
+        <View style={{ flex: 1 }}>
+            {data.length > 0 ? data.map((item, index) => (
+                <TeamsComponent
+                    item={item}
+                    key={index}
+                />
 
-                </View>
-                <View style={{marginTop:10}}>
-                    <IconInput />
-                    <Button
-                        title="GENERATE PIN"
-                    />
-                </View>
-                <View style={{marginTop:20}}>
-                    <IconInput />
-                    <Button
-                        title="SHARE"
-                    />
-                </View>
-            </View>
+            )) : <Text>No Active Teams</Text>}
         </View>
-    )
+
+    </>
+
+);
+
+const SecondRoute = ({ data }) => (
+    <View style={{ flex: 1 }}>
+        {data.length > 0 ? data.map((item, index) => (
+            <TeamsComponent item={item}
+                key={index}
+            />
+        )) : <Text>No Pending Teams</Text>}
+    </View>
+);
+
+const ThirdRoute = ({ data }) => (
+    <View style={{ flex: 1 }}>
+        {data.length > 0 ? data.map((item, index) => (
+            <TeamsComponent item={item}
+                key={index}
+            />
+        )) : <Text>No Total Teams</Text>}
+    </View>
+);
+
+export default function Teams() {
+    const layout = useWindowDimensions();
+
+    const [index, setIndex] = React.useState(0);
+    const [routes] = React.useState([
+        { key: 'first', title: 'Active' },
+        { key: 'second', title: 'Pending' },
+        { key: 'third', title: 'Total' },
+    ]);
+
+    const [activeTeams, setActiveTeams] = React.useState([]);
+    const [pendingTeams, setPendingTeams] = React.useState([]);
+    const [totalTeams, setTotalTeams] = React.useState([]);
+
+    React.useEffect(() => {
+        teamsData();
+    }, []);
+
+    const teamsData = async () => {
+        await callAxiosGet(API_CONSTANTS.teams).then((res) => {
+            const data = res.data.data;
+            const active = data.filter(team => team.status === 'active');
+            const pending = data.filter(team => team.status === 'pending');
+            const total = data;
+            setActiveTeams(active);
+            setPendingTeams(pending);
+            setTotalTeams(total);
+        }).catch(err => {
+            console.log('Error fetching teams data', err);
+        });
+    };
+
+    const renderScene = ({ route }) => {
+        switch (route.key) {
+            case 'first':
+                return <FirstRoute data={activeTeams} />;
+            case 'second':
+                return <SecondRoute data={pendingTeams} />;
+            case 'third':
+                return <ThirdRoute data={totalTeams} />;
+            default:
+                return null;
+        }
+    };
+
+    // Custom TabBar to change header color
+    const renderTabBar = props => (
+        <TabBar
+            {...props}
+            indicatorStyle={{ backgroundColor: COLORS.primary }} // Change indicator color
+            style={{ backgroundColor: COLORS.secondry }} // Change TabView header color
+            labelStyle={{ color: COLORS.white }} // Change text color
+        />
+    );
+
+    return (
+        <>
+            <Header title="Teams" />
+            <TabView
+                navigationState={{ index, routes }}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+                renderTabBar={renderTabBar} // Use custom TabBar
+            />
+        </>
+    );
 }
-
-export default Teams
-
-const styles = StyleSheet.create({})
