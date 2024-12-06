@@ -1,9 +1,8 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Linking, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { COLORS } from '../constants/theme'
 import Button from '../components/button/button'
 import IconInput from '../components/text/iconInput'
-import { Icon } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native'
 import Header from '../components/header'
 import { callAxios } from '../services/api'
@@ -14,26 +13,48 @@ const AddMember = () => {
     const [phone, setPhone] = useState('')
     const [pin, setPin] = useState('')
     const [error, setError] = useState(null)
+
     const handlePin = async () => {
         if (phone.length !== 10) {
-            setError('Phone number must be 10 digits')
-            return
+            setError('Phone number must be 10 digits');
+            return;
         }
         try {
-            const req = { phone } 
-            const res = await callAxios(API_CONSTANTS.pin, req)
+            const req = { phone };
+            const res = await callAxios(API_CONSTANTS.pin, req);
 
             if (res.data.error) {
-                setError(res.data.error) // Handle API error response
+                // Show an alert if the phone number already exists
+                if (res.data.error) {
+                    Alert.alert(
+                        'Phone Number Exists',
+                        res.data.message,
+                        [{ text: 'OK' }]
+                    );
+                } else {
+                    // Set error for other cases
+                    setError(res.data.error.message);
+                }
             } else {
-                setPin(res.data.pin) // Assuming API returns the generated PIN
-                setError(null) // Clear any previous error
+                setPin(res.data.pin); // Assuming API returns the generated PIN
+                setError(null); // Clear any previous error
             }
         } catch (error) {
-            console.log(error)
-            setError('Failed to generate PIN. Please try again.')
+           
+            setError('Failed to generate PIN. Please try again.');
         }
+    };
+
+
+    const handleWhatapps = () => {
+        const message = `Hi, I have invited you to join Trade Co platform. Please log in using these credentials:\n\nMobile: ${phone}\nPin: ${pin}`
+        const whatsappUrl = `whatsapp://send?phone=+91${phone}&text=${encodeURIComponent(message)}`
+
+        Linking.openURL(whatsappUrl).catch(() => {
+            Alert.alert('Error', 'WhatsApp is not installed on your device')
+        })
     }
+
     return (
         <>
             <Header title="Add Members" />
@@ -64,6 +85,7 @@ const AddMember = () => {
                         />
                         <Button
                             title="SHARE"
+                            onPress={handleWhatapps}
                         />
                     </View>
                 </View>

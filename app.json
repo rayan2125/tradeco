@@ -1,4 +1,7 @@
 {
   "name": "Tradeco",
-  "displayName": "Tradeco"
+  "displayName": "Tradeco",
+  "expo": {
+    "scheme": "tradeco"
+  }
 }

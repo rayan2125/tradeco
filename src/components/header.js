@@ -1,10 +1,13 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import React, { useState } from 'react';
 import { COLORS, SIZES } from '../constants/theme';
 import { Icon } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import Ficon from 'react-native-vector-icons/FontAwesome6'
-const Header = ({ title, pIcon, fIcon, left, cPress }) => {
+import { useSelector } from 'react-redux';
+const Header = ({ title, pIcon, fIcon, left, cPress, source, coins,handleSerch }) => {
+    const cartItems = useSelector(state => state?.cart?.cartList);
+
     let navigation = useNavigation()
     const [open, setOpen] = useState(false);
 
@@ -20,21 +23,40 @@ const Header = ({ title, pIcon, fIcon, left, cPress }) => {
 
                 {/* Centered View */}
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', left: left }}>
-                    <Text style={{ fontSize: SIZES.h1, color: COLORS.title, fontWeight: '700' }}>{title}</Text>
+                    <Text style={{ fontSize: SIZES.h1, color: COLORS.secondry, fontWeight: '700' }}>{title}</Text>
                 </View>
-                <View style={{ flexDirection: 'row', }}>
-                    <TouchableOpacity style={{ marginHorizontal: 20 }}>
 
-                        <Ficon name={fIcon} size={30} color={COLORS.secondry} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={cPress}>
+                {
+                    fIcon ?
+                        <View style={{ flexDirection: 'row', }}>
 
-                        <Icon source={pIcon} size={30} color={COLORS.secondry} />
-                        {/* <View style={{ position: 'absolute', backgroundColor: COLORS.primary, height: 20, width: 20, right: -5, top: -5, alignItems: 'center', justifyContent: 'center', borderRadius: 100 }}>
-                            <Text style={{ color: COLORS.title, }}>1</Text>
-                        </View> */}
-                    </TouchableOpacity>
-                </View>
+                            <TouchableOpacity 
+                            onPress={handleSerch}
+                            style={{ marginHorizontal: 20 }}>
+
+                                <Ficon name={fIcon} size={30} color={COLORS.secondry} />
+                            </TouchableOpacity>
+                            <View>
+                                {
+                                    cartItems.length > 0 ?
+                                        <View style={{ position: 'absolute', top: -8, left: 20, backgroundColor: '#625D57', height: 18, width: 18, zIndex: 100, borderRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
+                                            <Text style={{ color: COLORS.white, fontSize: 10 }}>{cartItems.length}</Text>
+                                        </View> : []
+                                }
+                                <TouchableOpacity onPress={cPress}>
+
+                                    <Icon source={pIcon} size={30} color={COLORS.secondry} />
+                                </TouchableOpacity>
+                            </View>
+
+                        </View> :
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
+                            <Image source={source} style={{ height: 50, width: 50, resizeMode: 'contain' }} />
+                            <Text style={{ fontSize: 18, color: COLORS.title, fontWeight: '600' }}>{coins}</Text>
+                        </View>
+                }
             </View>
         </>
     );

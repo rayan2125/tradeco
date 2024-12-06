@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Alert } from 'react-native'
+import { StyleSheet, Text, View, Image, Alert, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { COLORS, SIZES } from '../../constants/theme'
 import IconInput from '../../components/text/iconInput'
@@ -12,10 +12,10 @@ import { AlertNotificationRoot, ALERT_TYPE, Dialog } from 'react-native-alert-no
 import {
     SkypeIndicator,
 } from 'react-native-indicators';
-import { useDispatch,useSelector } from 'react-redux'
-import { setUser } from '../../redux/Reducers/auth.redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { setAuthdata, setUser } from '../../redux/Reducers/auth.redux'
 const Login = () => {
-    let userDetails = useSelector(state => state.auth.adduser)
+   
 
 
     let dispatch = useDispatch()
@@ -25,7 +25,7 @@ const Login = () => {
         phone: '',
         pin: ''
     })
-
+    const [passView, setPassView] = useState(true)
     const [errors, setErrors] = useState({
         phone: '',
         pin: ''
@@ -34,6 +34,9 @@ const Login = () => {
     const validatepin = (pin) => {
         return pin.length >= 6;
     };
+    const validatePhone = (phone) => {
+        return phone.length === 10;
+    };
 
     const handleSubmit = async (state) => {
         const { phone, pin } = state;
@@ -41,55 +44,45 @@ const Login = () => {
         let newErrors = { phone: '', pin: '' };
 
         if (!phone) {
-            newErrors.phone = "phone is required";
+            newErrors.phone = "Phone is required";
+            isValid = false;
+        } else if (!validatePhone(phone)) {
+            newErrors.phone = "Phone number must be exactly 10 digits";
             isValid = false;
         }
 
         if (!pin) {
-            newErrors.pin = "pin is required";
+            newErrors.pin = "Pin is required";
             isValid = false;
         } else if (!validatepin(pin)) {
-            newErrors.pin = "pin must be at least 6 characters";
+            newErrors.pin = "Pin must be at least 6 characters";
             isValid = false;
         }
 
         setErrors(newErrors);
 
         if (isValid) {
-            setIndicator(true)
+            setIndicator(true);
             let req = {
                 phone: state.phone,
                 code: state.pin
-            }
+            };
             await callAxios(API_CONSTANTS.login, req).then((res) => {
-                setIndicator(false)
+          
+                setIndicator(false);
 
                 if (res.success === true) {
-
-                    // Dialog.show({
-                    //     type: ALERT_TYPE.SUCCESS,
-                    //     title: 'Login Successful',
-                    //     textBody: `Welcome, ${phone}`,
-                    //     button: 'close',
-                    //     onPressButton: () => {
-                    //         Dialog.hide();  // Hide the dialog manually
-                    //         let token = res.data.token;
-                    //         AsyncStorage.setItem('token', token);
-                    //         navigation.navigate("Home");  // Navigate after hiding the dialog
-                    //     }
-                    // });
                     let userInfo = res.data.user;
-                    dispatch(setUser(userInfo))
+                    dispatch(setUser(userInfo));
                     let token = res.data.token;
                     AsyncStorage.setItem('token', token);
-                    if (userInfo.status === 'pending') {
 
-                        navigation.navigate("NewProfile");
+                    if (userInfo.status === 'pending') {
+                        dispatch(setAuthdata(state));
+                        navigation.navigate("NewProfile", state);
                     } else {
                         navigation.navigate("Home");
                     }
-
-
                 } else {
                     Dialog.show({
                         type: ALERT_TYPE.DANGER,
@@ -98,9 +91,10 @@ const Login = () => {
                         button: 'close',
                     });
                 }
-            })
+            });
         }
-    }
+    };
+
 
     return (
         <AlertNotificationRoot>
@@ -122,7 +116,7 @@ const Login = () => {
                             maxLength={10}
                             error={errors.phone}
                             onChangeText={(value) => setState({ ...state, phone: value })}
-                            left={<TextInput.Icon icon="eye" />}
+                        // left={<TextInput.Icon icon="eye" />}
                         />
                         <IconInput
                             title="Pin"
@@ -131,14 +125,20 @@ const Login = () => {
                             error={errors.pin}
                             maxLength={6}
                             onChangeText={(value) => setState({ ...state, pin: value })}
-                            secureTextEntry={true}
-                            left={<TextInput.Icon icon="eye" />}
+                            // secureTextEntry={true}
+
+                            left={<TextInput.Icon icon="eye" onPress={() => setPassView(!passView)} />}
+                            hide={passView}
                         />
-                        <View style={{ alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                        <TouchableOpacity 
+                  onPress={() =>
+                    navigation.navigate("ForgotPwdScreen")
+                }
+                        style={{ alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end' }}>
                             <Text style={{ color: 'red', fontWeight: '500', fontSize: SIZES.h3 }}>
                                 Forgot Pin
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                         {
                             indicator &&
                             <View style={{ position: 'absolute', right: '50%', left: '50%', top: '50%', bottom: '50%' }}>

@@ -28,20 +28,7 @@ const SplashScreen = () => {
           }),
         ]).start(async () => {
           // Check for token and navigate accordingly
-          const token = await AsyncStorage.getItem('token');
-          if (token) {
-            await callAxiosGet(API_CONSTANTS.profile).then((res) => {
-              let userDetails = res.data;
-              if (userDetails.status === 'pending') {
-                navigation.navigate('NewProfile');
-              } else {
-                navigation.replace('Home');
-              }
-            });
-          } else {
-            // If no token, navigate to Login screen
-            navigation.replace('Login');
-          }
+          navigation.navigate('GifScreens')
         });
       };
 

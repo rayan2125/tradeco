@@ -5,8 +5,10 @@ export const authSlice = createSlice({
     initialState: {
         isLoggedIn: false,
         authData: null,
-        adduser: {}, // Store user as an object
+        adduser: {}, // 
         userImg: null, // Initially set userImg to null
+        userProfile: {},
+        coin:null
     },
     reducers: {
         setAuthdata(state, action) {
@@ -24,10 +26,16 @@ export const authSlice = createSlice({
         },
         setUserImg(state, action) {
             state.userImg = action.payload; // Store the user image
+        },
+        setProfile(state, action) {
+            state.userProfile = action.payload;
+        },
+        setCoin(state, action) {
+            state.coin = action.payload
         }
     },
 });
 
-export const { setAuthdata, logout, setUser, setUserImg } = authSlice.actions;
+export const { setAuthdata, logout, setUser, setUserImg, setProfile, setCoin } = authSlice.actions;
 
 export default authSlice.reducer;

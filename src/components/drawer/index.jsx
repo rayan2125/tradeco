@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView, View, Text, TouchableOpacity, Image, Linking } from "react-native";
 import { COLORS } from "../../constants/theme";
 import styles from "./styles";
@@ -8,15 +8,23 @@ import { useNavigation, useNavigationState } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../redux/Reducers/auth.redux";
+import { callAxiosGet } from "../../services/api";
+import { API_CONSTANTS } from "../../constants/ApiCollection";
 
 const DrawerScreen = () => {
-    const dispatch = useDispatch();
-    const userDetails = useSelector(state => state.auth.adduser);
+
+    useEffect(() => {
+        handleProfile()
+    }, [])
+    const userDetails = useSelector(state => state.auth.userProfile);
+    const userImg = useSelector(state => state.auth.userImg);
+    const [userInfo, setUserInfo] = useState('')
+
     const navigation = useNavigation();
     const currentRoute = useNavigationState(state => state.routes[state.index].name);
 
     const data = [
-        { id: 1, name: 'Home', icon: 'home' },
+        { id: 1, name: 'Order History', icon: 'cart' },
         { id: 2, name: 'Terms and Conditions', icon: 'clipboard-edit' },
         { id: 3, name: 'Privacy Policy', icon: 'lock' },
         { id: 4, name: 'Refund Return Policy', icon: 'cash-refund' },
@@ -26,8 +34,8 @@ const DrawerScreen = () => {
     const handleNavigation = (id) => {
         switch (id) {
             case 1:
-                if (currentRoute !== 'Home') {
-                    navigation.navigate('Home',{screen:'Home'});
+                if (currentRoute !== 'order') {
+                    navigation.navigate('Order', { screen: 'Order' });
                 }
                 break;
             case 2:
@@ -46,7 +54,11 @@ const DrawerScreen = () => {
                 break;
         }
     };
-
+    const handleProfile = async () => {
+        await callAxiosGet(API_CONSTANTS.profile).then((res) => {
+            setUserInfo(res.data)
+        })
+    }
     const handleLogOut = async () => {
         try {
             // Clear the stored token
@@ -61,7 +73,7 @@ const DrawerScreen = () => {
             // dispatch(setUser([]));
 
         } catch (error) {
-            console.error("Error logging out:", error);
+           
         }
     };
 
@@ -69,9 +81,9 @@ const DrawerScreen = () => {
         <SafeAreaView style={styles.container}>
             <View>
                 <View style={{ marginHorizontal: 20, marginTop: 10, marginBottom: 10, borderColor: COLORS.primary, borderWidth: 1, borderRadius: 100, height: 150, width: 150, justifyContent: 'center', alignItems: 'center' }}>
-                    <Image source={require("../../assets/boy1.jpeg")} style={{ height: 140, width: 140, borderRadius: 100, resizeMode: 'cover' }} />
+                    <Image source={{ uri: userImg || userInfo.image }} style={{ height: 140, width: 140, borderRadius: 100, resizeMode: 'cover' }} />
                 </View>
-                <Text style={{ fontSize: 24, fontWeight: '500', marginHorizontal: 20, marginBottom: 10, color: COLORS.title }}> Hey! {userDetails.name}</Text>
+                {/* <Text style={{ fontSize: 24, fontWeight: '500', marginHorizontal: 20, marginBottom: 10, color: COLORS.title }}> Hey! {userDetails.name}</Text> */}
                 <View>
                     <Divider style={{ height: 2 }} />
                     {

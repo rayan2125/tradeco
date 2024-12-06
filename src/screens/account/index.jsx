@@ -1,23 +1,38 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import styles from './styles';
 import { COLORS } from "../../constants/theme";
 import { Divider, Icon } from "react-native-paper";
 import { ScrollView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { callAxiosGet } from "../../services/api";
 import { API_CONSTANTS } from "../../constants/ApiCollection";
 import { useSelector } from "react-redux";
 // import icom from 'react-native-vector-icons/ic'
 const AccountScreen = () => {
+    useEffect(() => {
+        handleProfile()
+    }, [])
 
-    let userDetails = useSelector(state => state.auth.adduser)
+
+    const userImg = useSelector(state => state.auth.userImg);
+    const [userInfo, setUserInfo] = useState('')
+
     let navigation = useNavigation()
 
-
-    const handleNavigation = () => {
-        navigation.navigate('Profile', userDetails)
+    const handleProfile = async () => {
+        await callAxiosGet(API_CONSTANTS.profile).then((res) => {
+            setUserInfo(res.data)
+        })
     }
+    const handleNavigation = () => {
+        navigation.navigate('Profile', userInfo)
+    }
+    useFocusEffect(
+        useCallback(() => {
+            handleProfile();
+        }, [])
+    );
     return (
         <>
             <View style={[styles.container, { marginTop: 10 }]}>
@@ -25,12 +40,12 @@ const AccountScreen = () => {
                     <View>
                         <View style={{ marginHorizontal: 20, marginTop: 10, marginBottom: 10, borderColor: COLORS.primary, borderWidth: 1, borderRadius: 100, height: 160, width: 160, justifyContent: 'center', alignItems: 'center' }}>
 
-                            <Image source={require("../../assets/boy1.jpeg")} style={{ height: 150, width: 150, borderRadius: 100, resizeMode: 'cover' }} />
+                            <Image source={{ uri: userImg || userInfo.image }} style={{ height: 150, width: 150, borderRadius: 100, resizeMode: 'cover' }} />
                         </View>
                         <View style={{}}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
 
-                                <Text style={{ fontSize: 20, fontWeight: '500', color: COLORS.title, marginHorizontal: 20, marginBottom: 10 }}> Hey! {userDetails.name}</Text>
+                                <Text style={{ fontSize: 20, fontWeight: '500', color: COLORS.title, marginHorizontal: 20, marginBottom: 10 }}>{userInfo.name}</Text>
                                 <TouchableOpacity
                                     onPress={() => handleNavigation()}
                                     style={{ marginHorizontal: 10 }}>
@@ -38,29 +53,15 @@ const AccountScreen = () => {
                                 </TouchableOpacity>
                             </View>
                             <Divider style={{ height: 1, backgroundColor: 'grey' }} />
-                            <Text style={{ marginHorizontal: 20, marginTop: 5, fontSize: 16, color: COLORS.title, }}>{userDetails.email}</Text>
-                            <Text style={{ marginHorizontal: 20, marginTop: 10, marginBottom: 10, fontSize: 16, color: COLORS.title, }}>{userDetails.phone}</Text>
+                            <Text style={{ marginHorizontal: 20, marginTop: 5, fontSize: 16, color: COLORS.title, }}>{userInfo.email}</Text>
+                            <Text style={{ marginHorizontal: 20, marginTop: 10, marginBottom: 10, fontSize: 16, color: COLORS.title, }}>{userInfo.phone}</Text>
 
                         </View>
                     </View>
-                    {/* <View style={{ marginHorizontal: 20, position: 'absolute', right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                        <View style={{}}>
-                            <Icon source='wallet' size={30} color={COLORS.secondry} />
-                        </View>
 
-                        <Text style={{ fontSize: 18, fontWeight: '700', color: COLORS.title }}>:1000/-rs</Text>
-                    </View> */}
 
                     <View style={{ marginTop: 10, marginBottom: 10 }}>
-                        {/* <View>
-                            <Text style={{ marginHorizontal: 20, fontSize: 16, fontWeight: '700', color: COLORS.title, }}>Order History:</Text>
-                            <View style={{ marginHorizontal: 20, }}>
-                                <Image source={require("../../assets/product.png")} style={{ height: 100, width: 100, resizeMode: 'contain' }} />
-                                <Text style={{ fontSize: 18, fontWeight: '700', color: COLORS.title, }}>Combo 2</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '500', color: COLORS.title, }}>Combo of...</Text>
-                                <Text style={{ color: COLORS.primary, fontSize: 18, fontWeight: '700' }}>18900/-</Text>
-                            </View>
-                        </View> */}
+
                         <View>
                             <Divider style={{ height: 1, backgroundColor: 'grey' }} />
                         </View>
@@ -68,15 +69,16 @@ const AccountScreen = () => {
                         <View style={{ marginTop: 10, marginHorizontal: 20, }}>
 
                             <Text style={{ fontSize: 16, fontWeight: '700', color: COLORS.title, }}>Address:</Text>
-                            <View style={{ backgroundColor: COLORS.white, paddingHorizontal: 10, paddingVertical: 10, marginTop: 10, borderRadius: 10 }}>
+                            <View style={{ backgroundColor: COLORS.white, paddingHorizontal: 10, paddingVertical: 10, marginTop: 10, borderRadius: 10, borderColor: COLORS.primary, borderWidth: 1 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                    <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>1-A Street New City,Landmark</Text>
-                                    <TouchableOpacity style={{}}>
-                                        <Icon source='pencil-outline' size={25} color={COLORS.title} />
-                                    </TouchableOpacity>
+                                    <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>{userInfo.address} | {userInfo.address2}</Text>
+
                                 </View>
-                                <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>ZIP CODE:{userDetails.zip}</Text>
-                                <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>Country</Text>
+
+                                <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>City: {userInfo.city}</Text>
+                                <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>State: {userInfo.state}</Text>
+                                <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>ZIP CODE:{userInfo.zip}</Text>
+                                <Text style={{ fontSize: 16, fontWeight: '400', color: COLORS.title, }}>Country:IND</Text>
                             </View>
                         </View>
                     </View>

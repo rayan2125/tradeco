@@ -1,33 +1,35 @@
 import React, { useRef, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, Alert } from 'react-native';
 import { Icon, TextInput } from 'react-native-paper';
 import Header from '../../components/header';
 import Button from '../../components/button/button';
 import { COLORS } from '../../constants/theme';
-import { callAxios } from '../../services/api';
+import { callAxios, callAxiosImage, callAxiosWithFormData, callAxiosWithFormDataRegister } from '../../services/api';
 import { API_CONSTANTS } from '../../constants/ApiCollection';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser, setUserImg } from '../../redux/Reducers/auth.redux';
+import { setProfile, setUser, setUserImg, userProfile } from '../../redux/Reducers/auth.redux';
 import DeleteDailog from '../../components/card/deleteDailog';
 import { AlertNotificationRoot } from 'react-native-alert-notification';
 
-const Profile = () => {
+const Profile = ({ route }) => {
     const dispatch = useDispatch();
-    const userImg = useSelector(state => state.auth.userImg);
-  
-    const userDetails = useSelector(state => state.auth.adduser);
 
-    let id = userDetails.id
+    let img = route.params.image
+
+    const userImg = useSelector(state => state.auth.userImg);
+    const userDetails = route.params
+
+
     const navigation = useNavigation();
     const refRBSheet = useRef();
     const [openModal, setModal] = useState(false);
 
 
     const [state, setState] = useState({
-        id,
+
         name: userDetails.name || '',
         email: userDetails.email || '',
         phone: userDetails.phone || '',
@@ -82,59 +84,52 @@ const Profile = () => {
         setModal(false);
     };
 
-    const validate = () => {
-        let tempErrors = {};
-        if (!state.name.trim()) tempErrors.name = "Name is required";
-        if (!state.email.trim()) tempErrors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(state.email)) tempErrors.email = "Email format is invalid";
 
-        else if (!/^\d{10}$/.test(state.phone)) tempErrors.phone = "Phone number must be 10 digits";
-        if (!state.address.trim()) tempErrors.address = "Address is required";
-
-        setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
 
     const handleSubmit = async () => {
-        if (validate()) {
-            const formData = new FormData();
-            formData.append('id', state.id);
-            formData.append('name', state.name);
-            formData.append('email', state.email);
-            formData.append('phone', state.phone);
-            formData.append('address', state.address);
-            formData.append('address2', state.address2);
-            formData.append('city', state.city);
-            formData.append('state', state.state);
-            formData.append('zip', state.zip);
-            
-            if (state.image) {
-                formData.append('image', {
-                    uri: state.image,
-                    type: 'image/jpeg', // or the actual MIME type of the image
-                    name: 'profile.jpg', // or the actual name of the file
-                });
-            }
-    
-            try {
-                const res = await callAxios(API_CONSTANTS.profile, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                console.log(res.data);
-                if (res.success) {
-                    // dispatch(setUser(state)); // Uncomment if needed
-                    navigation.navigate('Account');
-                }
-            } catch (error) {
-                console.error("Error updating profile:", error);
-            }
-        } else {
-            console.log("Validation failed");
+
+        const formData = new FormData();
+
+        formData.append('name', state.name);
+        formData.append('email', state.email);
+        formData.append('phone', state.phone);
+        formData.append('address', state.address);
+        formData.append('address2', state.address2);
+        formData.append('city', state.city);
+        formData.append('state', state.state);
+        formData.append('zip', state.zip);
+
+        if (state.image) {
+            formData.append('image', {
+                uri: state.image,
+                type: 'image/jpeg', // or the actual MIME type of the image
+                name: 'profile.jpg',
+            });
         }
+        await callAxiosImage(API_CONSTANTS.profile, formData)
+            .then((res) => {
+                if (res.success) {
+                    Alert.alert(
+                        "Profile Update",
+                        "Your profile has been updated successfully.",
+                        [
+                            {
+                                text: "OK",
+                                onPress: () => {
+                                    dispatch(setProfile(state));
+                                    navigation.pop(); // Navigate back
+                                },
+                            },
+                        ]
+                    );
+                }
+            })
+            .catch((error) => console.error("Error updating profile:", error));
+
+
+
     };
-    
+
     const handleDeleteImage = () => {
         dispatch(setUserImg(null));
         setModal(false);
@@ -146,10 +141,10 @@ const Profile = () => {
             <AlertNotificationRoot>
                 <View style={{ flex: 1, margin: 20 }}>
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        {userImg ? (
+                        {img ? (
                             <View style={{ alignSelf: 'center', marginBottom: 10 }}>
                                 <View style={styles.imageContainer}>
-                                    <Image source={{ uri: userImg }} style={styles.userImage} />
+                                    <Image source={{ uri: userImg || img }} style={styles.userImage} />
                                     <TouchableOpacity
                                         onPress={() => setModal(!openModal)}
                                         style={styles.deleteIcon}>
@@ -208,6 +203,7 @@ const Profile = () => {
                             error={!!errors.phone}
                             activeOutlineColor={COLORS.secondry}
                             maxLength={10}
+                            editable={false}
                         />
                         {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
 

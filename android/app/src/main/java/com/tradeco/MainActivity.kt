@@ -1,4 +1,4 @@
-package com.tradeco
+package com.zolute.tradeco
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

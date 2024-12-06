@@ -11,26 +11,35 @@ import Header from '../../components/header';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCart } from '../../redux/Reducers/cart.redux';
 
-const Products = () => {
+const OfferProduct = () => {
   let navigation = useNavigation();
-  let dispatch = useDispatch()
   const cartItems = useSelector(state => state?.cart?.cartList)
-  const [selectedItems, setSelectedItems] = useState({}); // State to track selected items
+  let userDetails = useSelector(state => state.auth.adduser)
+  const [userInfo, setUserInfo] = useState(null)
+
+  let dispatch = useDispatch()
+  const [selectedItems, setSelectedItems] = useState({});
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     handleProducts();
+    handleProfile();
   }, []);
 
   const handleProducts = async () => {
-    await callAxiosGet(`${API_CONSTANTS.product}?type=product`).then((res) => {
+    await callAxiosGet(`${API_CONSTANTS.product}?type=gift`).then((res) => {
       let data = res.data;
       setProducts(data);
     });
   };
-
+  const handleProfile = async () => {
+    await callAxiosGet(API_CONSTANTS.info).then((res) => {
+      setUserInfo(res.data)
+    })
+  }
   const handleNavigation = (item) => {
+
     navigation.navigate("ViewProducts", item);
   };
 
@@ -42,34 +51,41 @@ const Products = () => {
     }));
   };
   const handleCart = (item) => {
+    if (userInfo.giftEligibility === 100) {
 
-    const isGiftItemInCart = cartItems.some(cartItem => cartItem.type === "gift");
+      if (cartItems.length > 0) {
+        // Alert user if there's already an item in the cart
+        Alert.alert("Notice", "You already have a product in the cart.");
+        return; // Exit the function without adding the new item
+      }
 
-    if (isGiftItemInCart) {
-      // Alert the user if trying to add any item when a gift item is in the cart
-      Alert.alert("Notice", "You cannot add other items when a gift item is already in the cart.");
-      return; // Exit function without adding the item
+      const isGiftItemInCart = cartItems.some(cartItem => cartItem.type === "gift");
+
+      if (isGiftItemInCart && item.type === "gift") {
+        // Alert user if trying to add another gift item
+        Alert.alert("Notice", "Only one gift item can be added to the cart.");
+        return; // Exit function without adding the gift item
+      }
+      const updatedItem = { ...item, quantity: 1, price: 0 };
+
+      dispatch(addCart(updatedItem))
+      navigation.navigate("Cart")
+    } else {
+      Alert.alert("Notice", "Please add more users to unlock this reward.");
+
     }
-
-    // If no gift item is in the cart, add the item as usual
-    const itemQuantity = 1;
-    const itemWithQuantity = {
-      ...item,
-      quantity: itemQuantity
-    };
-    dispatch(addCart(itemWithQuantity));
-    navigation.navigate("Cart");
-  };
-
+  }
   return (
     <>
       <Header
-        title="Products"
+        title="Gift Products"
         fIcon="magnifying-glass"
         pIcon="cart"
         cPress={() => navigation.navigate('Cart')}
-        left={20}
-        handleSerch={() => navigation.navigate('Search')}
+        source={require('../../assets/coin.png')}
+        coins={userDetails.wallet}
+        left={35}
+
       />
       <View style={{ flex: 1, backgroundColor: COLORS.white }}>
         <View style={{ flex: 1, alignItems: 'center', gap: 5 }}>
@@ -95,13 +111,17 @@ const Products = () => {
                         style={{ position: 'absolute', right: 10, top: 0 }}
                         onPress={() => handleSelected(item.id)}
                       >
-
+                        <Icon
+                          source={selectedItems[item.id] ? "heart" : "cards-heart-outline"}
+                          size={25}
+                          color={selectedItems[item.id] ? "red" : "black"}
+                        />
                       </TouchableOpacity>
 
                       <View style={{ borderBottomLeftRadius: 20, borderBottomRightRadius: 20, top: 5, paddingHorizontal: 10, paddingVertical: 10, }}>
                         <Text style={{ width: 100, textAlign: 'left', color: COLORS.secondry, fontSize: 14, fontWeight: '500' }}>{item.name.slice(0, 10)}</Text>
 
-                        <Text style={{ fontSize: 20, color: COLORS.title, fontWeight: '500' }}>{'\u20B9'}{item.price} </Text>
+                        {/* <Text style={{ fontSize: 20, color: COLORS.title, fontWeight: '500' }}>{'\u20B9'}fre</Text> */}
                         <Text style={{ fontSize: 12, color: COLORS.title, fontWeight: '500' }}>{item.description.slice(0, 25)}</Text>
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
 
@@ -112,6 +132,7 @@ const Products = () => {
                             <Icon source='eye' size={18} color={COLORS.white} />
                           </TouchableOpacity>
                           <TouchableOpacity
+
                             onPress={() => handleCart(item)}
                             style={{ borderColor: COLORS.primary, borderWidth: 1, borderRadius: 100, marginTop: 10, height: 30, width: '50%', justifyContent: 'center', alignItems: 'center' }}>
 
@@ -144,6 +165,6 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default OfferProduct;
 
 const styles = StyleSheet.create({});

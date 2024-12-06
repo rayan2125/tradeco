@@ -5,7 +5,7 @@ import Button from '../../components/button/button';
 import { Icon, TextInput } from 'react-native-paper';
 import { FlatList } from 'react-native';
 import { COLORS, SIZES } from '../../constants/theme';
-import { callAxios } from '../../services/api';
+import { callAxios, callAxiosImage, callAxiosWithFormData } from '../../services/api';
 import { API_CONSTANTS } from '../../constants/ApiCollection';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -18,7 +18,7 @@ import { Modal } from 'react-native';
 const NewProfile = () => {
     let dispatch = useDispatch()
     const userImg = useSelector(state => state.auth.userImg);
-
+    const authData = useSelector(state => state.auth.authData)
 
     let navigation = useNavigation()
     const refRBSheet = useRef();
@@ -86,8 +86,7 @@ const NewProfile = () => {
         if (!state.name.trim()) tempErrors.name = "Name is required";
         if (!state.email.trim()) tempErrors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(state.email)) tempErrors.email = "Email format is invalid";
-        if (!state.phone.trim()) tempErrors.phone = "Phone number is required";
-        else if (!/^\d{10}$/.test(state.phone)) tempErrors.phone = "Phone number must be 10 digits";
+
         if (!state.address.trim()) tempErrors.address = "Addresss is required";
 
 
@@ -99,7 +98,27 @@ const NewProfile = () => {
 
     const handleSubmit = async () => {
         if (validate()) {
-            await callAxios(API_CONSTANTS.profile, state).then((res) => {
+            const formData = new FormData();
+            formData.append('name', state.name);
+            formData.append('email', state.email);
+            formData.append('phone', state.phone);
+            formData.append('address', state.address);
+            formData.append('address2', state.address2);
+            formData.append('city', state.city);
+            formData.append('state', state.state);
+            formData.append('zip', state.zip);
+
+            if (state.image) {
+                formData.append('image', {
+                    uri: state.image,
+                    type: 'image/jpeg',
+                    name: 'profile.jpg',
+                });
+            }
+            await callAxiosImage(API_CONSTANTS.profile, formData).then((res) => {
+                let membership= res.data.membership_amount
+                let phone = authData.phone
+                
                 if (res.success === true) {
 
                     // Dialog.show({
@@ -114,14 +133,19 @@ const NewProfile = () => {
                     //         navigation.navigate("Home");  // Navigate after hiding the dialog
                     //     }
                     // });
+
                     let userInfo = state
                     dispatch(setUser(userInfo))
-                    navigation.navigate('Payment')
+                    let data = {
+                        membership,
+                        phone
+                    }
+                    navigation.navigate('MemberShip',data)
                 }
             })
 
         } else {
-            console.log("Validation failed");
+           
         }
     };
     const handleDeleteImage = () => {
@@ -214,12 +238,15 @@ const NewProfile = () => {
                                     <TextInput
                                         mode="outlined"
                                         label={item.charAt(0).toUpperCase() + item.slice(1)} // Capitalize first letter
-                                        value={state[item]} // Access the state dynamically
+                                        value={item === "phone" && !state.phone ? authData && authData.phone : state[item]}// Access the state dynamically
                                         onChangeText={(text) => setState({ ...state, [item]: text })}
                                         style={{ marginBottom: 5 }}
                                         error={errors[item] ? true : false}
                                         activeOutlineColor={COLORS.secondry}
                                         placeholderTextColor={COLORS.secondry}
+                                        editable={item === "phone" ? false : true}
+                                        keyboardType={item === "zip" ? 'number-pad' : 'default'}
+                                        maxLength={item === "zip" ? 6 : 20}
                                     />
                                     {errors[item] && <Text style={styles.errorText}>{errors[item]}</Text>}
                                 </>
@@ -228,7 +255,7 @@ const NewProfile = () => {
 
                         {/* Submit button */}
                         <Button title="Submit" onPress={handleSubmit} />
-                       
+
                     </ScrollView>
                 </View>
                 <RBSheet
