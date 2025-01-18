@@ -17,7 +17,7 @@ import DeleteDailog from '../../components/card/deleteDailog';
 import { Modal } from 'react-native';
 const NewProfile = () => {
     let dispatch = useDispatch()
-    const userImg = useSelector(state => state.auth.userImg);
+   const userImg = useSelector(state => state.auth.userImg);
     const authData = useSelector(state => state.auth.authData)
 
     let navigation = useNavigation()
@@ -246,7 +246,7 @@ const NewProfile = () => {
                                         placeholderTextColor={COLORS.secondry}
                                         editable={item === "phone" ? false : true}
                                         keyboardType={item === "zip" ? 'number-pad' : 'default'}
-                                        maxLength={item === "zip" ? 6 : 20}
+                                        maxLength={item === "zip" ? 6 : 250}
                                     />
                                     {errors[item] && <Text style={styles.errorText}>{errors[item]}</Text>}
                                 </>

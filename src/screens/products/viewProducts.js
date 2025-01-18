@@ -1,24 +1,24 @@
-import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { Divider } from 'react-native-paper'
-import { COLORS } from '../../constants/theme'
-import { useNavigation } from '@react-navigation/native'
-import Header from '../../components/header'
-import Button from '../../components/button/button'
-import { useDispatch, useSelector } from 'react-redux'
-import { addCart } from '../../redux/Reducers/cart.redux'
-import { callAxiosGet } from '../../services/api'
-import { API_CONSTANTS } from '../../constants/ApiCollection'
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert } from 'react-native';
+import RenderHTML from 'react-native-render-html'; // Import the library
+import { Divider } from 'react-native-paper';
+import { COLORS } from '../../constants/theme';
+import { useNavigation } from '@react-navigation/native';
+import Header from '../../components/header';
+import Button from '../../components/button/button';
+import { useDispatch, useSelector } from 'react-redux';
+import { addCart } from '../../redux/Reducers/cart.redux';
+import { callAxiosGet } from '../../services/api';
+import { API_CONSTANTS } from '../../constants/ApiCollection';
 
 const ViewProducts = ({ route }) => {
-    const navigation = useNavigation()
-    const dispatch = useDispatch()
-    const [userInfo, setUserInfo] = useState(null)
-    const cartItems = useSelector(state => state?.cart?.cartList)
-    let coin = useSelector(state => state.auth.coin)
-
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const [images, setImages] = useState([route.params.image, ...route.params.additional_images || []])
+    const navigation = useNavigation();
+    const dispatch = useDispatch();
+    const [userInfo, setUserInfo] = useState(null);
+    const cartItems = useSelector(state => state?.cart?.cartList);
+    const coin = useSelector(state => state.auth.coin);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [images, setImages] = useState([route.params.image, ...(route.params.additional_images || [])]);
 
     useEffect(() => {
         handleProfile();
@@ -41,7 +41,7 @@ const ViewProducts = ({ route }) => {
         const isProductInCart = cartItems.some(cartItem => cartItem.type === "product");
 
         if (item.type === "gift") {
-            if (userInfo.giftEligibility === 100) {
+            if (userInfo?.giftEligibility === 100) {
                 if (isGiftItemInCart) {
                     Alert.alert("Notice", "Only one gift item can be added to the cart.");
                     return;
@@ -59,6 +59,7 @@ const ViewProducts = ({ route }) => {
                 Alert.alert("Notice", "You cannot add products if there is already a gift item in the cart.");
                 return;
             }
+            
         }
 
         dispatch(addCart({ ...item, quantity: 1 }));
@@ -86,11 +87,9 @@ const ViewProducts = ({ route }) => {
                         <View>
                             <Text style={{ fontSize: 24, fontWeight: '600', color: COLORS.title }}>{route.params.name}</Text>
                             <View style={{ alignItems: 'center', marginTop: 20, flexDirection: 'row' }}>
-
                                 <TouchableOpacity onPress={handlePrevImage} disabled={currentIndex === 0} style={{ opacity: currentIndex === 0 ? 0.3 : 1 }}>
                                     <Text style={{ fontSize: 30, color: COLORS.primary }}>{'<'}</Text>
                                 </TouchableOpacity>
-
 
                                 <Image
                                     source={{ uri: images[currentIndex] }}
@@ -99,10 +98,9 @@ const ViewProducts = ({ route }) => {
                                         width: 300,
                                         resizeMode: 'contain',
                                         borderRadius: 20,
-                                        marginHorizontal: 10
+                                        marginHorizontal: 10,
                                     }}
                                 />
-
 
                                 <TouchableOpacity onPress={handleNextImage} disabled={currentIndex === images.length - 1} style={{ opacity: currentIndex === images.length - 1 ? 0.3 : 1 }}>
                                     <Text style={{ fontSize: 30, color: COLORS.primary }}>{'>'}</Text>
@@ -122,7 +120,11 @@ const ViewProducts = ({ route }) => {
                         </View>
                         <View style={{ flex: 1, marginTop: 10 }}>
                             <Text style={{ color: COLORS.title, fontSize: 18, fontWeight: '700' }}>Description:</Text>
-                            <Text style={{ color: COLORS.title }}>{route.params.description}</Text>
+                            {/* Render HTML description */}
+                            <RenderHTML
+                                contentWidth={width}
+                                source={{ html: route.params.description }}
+                            />
                         </View>
                     </ScrollView>
                     <Button title="Add Cart" onPress={() => handleCart(route.params)} />

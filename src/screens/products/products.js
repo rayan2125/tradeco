@@ -1,4 +1,4 @@
-import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Icon } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +10,7 @@ import ProductsSkelton from '../../components/skeleton/productsSkeleton';
 import Header from '../../components/header';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCart } from '../../redux/Reducers/cart.redux';
+import RenderHTML from 'react-native-render-html';
 
 const Products = () => {
   let navigation = useNavigation();
@@ -31,9 +32,10 @@ const Products = () => {
   };
 
   const handleNavigation = (item) => {
+   
     navigation.navigate("ViewProducts", item);
   };
-
+  const { height, width } = Dimensions.get("window");
   const handleSelected = (itemId) => {
     // Toggle selection state for each item
     setSelectedItems(prevSelected => ({
@@ -50,7 +52,7 @@ const Products = () => {
       Alert.alert("Notice", "You cannot add other items when a gift item is already in the cart.");
       return; // Exit function without adding the item
     }
-
+    
     // If no gift item is in the cart, add the item as usual
     const itemQuantity = 1;
     const itemWithQuantity = {
@@ -102,7 +104,13 @@ const Products = () => {
                         <Text style={{ width: 100, textAlign: 'left', color: COLORS.secondry, fontSize: 14, fontWeight: '500' }}>{item.name.slice(0, 10)}</Text>
 
                         <Text style={{ fontSize: 20, color: COLORS.title, fontWeight: '500' }}>{'\u20B9'}{item.price} </Text>
-                        <Text style={{ fontSize: 12, color: COLORS.title, fontWeight: '500' }}>{item.description.slice(0, 25)}</Text>
+                        <RenderHTML
+                          contentWidth={width}
+                          source={{ html: item.description.slice(0, 25) }}
+                        />
+                        {/* {item.available_stock <= 0 ? <Text style={{ color: 'black' }}>Out of Stock</Text> : ""} */}
+
+                        {/* <Text style={{ fontSize: 12, color: COLORS.title, fontWeight: '500' }}>{item.description.slice(0, 25)}</Text> */}
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
 
 
@@ -118,6 +126,7 @@ const Products = () => {
                             <Icon source='medical-bag' size={18} color={COLORS.primary} />
                           </TouchableOpacity>
                         </View>
+
                       </View>
                     </View>
                   );
